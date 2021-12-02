@@ -45,7 +45,7 @@ class PredictedFrames:
         self.text = ' '.join(word.text for word in self.words)
 
     def is_similar_to(self, other: PredictedFrames, threshold=70) -> bool:
-        return fuzz.ratio(self.text, other.text) >= threshold
+        return fuzz.partial_ratio(self.text, other.text) >= threshold
 
 
 class PredictedSubtitle:
@@ -76,7 +76,7 @@ class PredictedSubtitle:
         return 0
 
     def is_similar_to(self, other: PredictedSubtitle) -> bool:
-        return fuzz.ratio(self.text.replace(' ', ''), other.text.replace(' ', '')) >= self.sim_threshold
+        return fuzz.partial_ratio(self.text.replace(' ', ''), other.text.replace(' ', '')) >= self.sim_threshold
 
     def __repr__(self):
         return '{} - {}. {}'.format(self.index_start, self.index_end, self.text)

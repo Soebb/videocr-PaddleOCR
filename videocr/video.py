@@ -106,17 +106,19 @@ class Video:
             raise AttributeError(
                 'Please call self.run_ocr() first to perform ocr on frames')
 
+        max_frame_merge_diff = int(0.09 * self.fps)
         for frame in self.pred_frames:
-            self._append_sub(PredictedSubtitle([frame], sim_threshold))
+            self._append_sub(PredictedSubtitle([frame], sim_threshold), max_frame_merge_diff)
 
-    def _append_sub(self, sub: PredictedSubtitle) -> None:
+    def _append_sub(self, sub: PredictedSubtitle, max_frame_merge_diff: int) -> None:
         if len(sub.text) == 0:
             return
 
-        # merge new sub to the last subs if they are similar
-        while self.pred_subs and sub.is_similar_to(self.pred_subs[-1]):
-            ls = self.pred_subs[-1]
-            del self.pred_subs[-1]
-            sub = PredictedSubtitle(ls.frames + sub.frames, sub.sim_threshold)
+        # merge new sub to the last subs if they are similar and within 0.09 seconds apart
+        if self.pred_subs:
+            last_sub = self.pred_subs[-1]
+            if sub.index_start - last_sub.index_end <= max_frame_merge_diff and last_sub.is_similar_to(sub):
+                del self.pred_subs[-1]
+                sub = PredictedSubtitle(last_sub.frames + sub.frames, sub.sim_threshold)
 
         self.pred_subs.append(sub)
