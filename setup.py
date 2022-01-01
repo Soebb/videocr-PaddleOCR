@@ -1,4 +1,15 @@
-from setuptools import setup
+import warnings
+
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore")
+    try:
+        import setuptools
+        from setuptools import Extension
+        from setuptools import setup
+    except ImportError:
+        setuptools = None
+        from distutils.core import Extension
+        from distutils.core import setup
 
 with open('README.md', 'r', encoding='utf-8') as f:
     readme = f.read()
